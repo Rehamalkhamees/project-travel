@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import '/data/destination_data.dart';
+import '../models/destination_model.dart';
 import 'destination_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,51 +13,31 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController searchController = TextEditingController();
 
-  List<Map<String, dynamic>> destinations = [
-    {
-      'name': 'Diriyah',
-      'type': 'History & Culture',
-      'image': 'assets/images/diriyah1.jpeg',
-      'color': const Color(0xFFD8C3A5),
-    },
-    {
-      'name': 'Riyadh',
-      'type': 'Fashion & Entertainment',
-      'image': 'assets/images/riyadh1.jpeg',
-      'color': const Color(0xFFC9DDEB),
-    },
-    {
-      'name': 'AlUla',
-      'type': 'Adventure & Photography',
-      'image': 'assets/images/alula1.jpeg',
-      'color': const Color(0xFFE5B07A),
-    },
-    {
-      'name': 'Umluj',
-      'type': 'Sea & Relaxation',
-      'image': 'assets/images/umluj1.jpeg',
-      'color': const Color(0xFFC8E3E8),
-    },
-    {
-      'name': 'Abha',
-      'type': 'Nature & Escape',
-      'image': 'assets/images/abha1.jpeg',
-      'color': const Color(0xFFB8D0B0),
-    },
-  ];
+  List<DestinationModel> destinations = [];
 
-  List<Map<String, dynamic>> filteredDestinations = [];
+  List<DestinationModel> filteredDestinations = [];
+void getData() {
+  destinations = destinationData
+      .map((data) => DestinationModel.fromJson(data))
+      .toList();
+
+  filteredDestinations = destinations;
+}
+
+
+
+
 
   @override
   void initState() {
     super.initState();
-    filteredDestinations = destinations;
+    getData();
   }
 
   void searchDestination(String value) {
     setState(() {
       filteredDestinations = destinations.where((destination) {
-        return destination['name'].toString().toLowerCase().contains(
+        return destination.name.toString().toLowerCase().contains(
           value.toLowerCase(),
         );
       }).toList();
@@ -204,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                                   fit: StackFit.expand,
                                   children: [
                                     Image.asset(
-                                      destination['image'],
+                                      destination.image,
                                       fit: BoxFit.cover,
                                     ),
 
@@ -231,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            destination['name'],
+                                            destination.name,
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 30,
@@ -242,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                                           const SizedBox(height: 6),
 
                                           Text(
-                                            destination['type'],
+                                            destination.type,
                                             style: const TextStyle(
                                               color: Color(0xFFE3E7E4),
                                               fontSize: 14,

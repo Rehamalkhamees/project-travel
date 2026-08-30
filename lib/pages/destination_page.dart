@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/destination_model.dart';
 
 class DestinationPage extends StatelessWidget {
-  final Map<String, dynamic> destination;
+  final DestinationModel destination;
 
   const DestinationPage({
     super.key,
@@ -9,7 +10,7 @@ class DestinationPage extends StatelessWidget {
   });
 
   String getImageName() {
-    switch (destination['name']) {
+    switch (destination.name) {
       case 'Diriyah':
         return 'diriyah';
       case 'Riyadh':
@@ -26,7 +27,7 @@ class DestinationPage extends StatelessWidget {
   }
 
   String getAboutText() {
-    switch (destination['name']) {
+    switch (destination.name) {
       case 'Diriyah':
         return 'Your bag is packed for a journey through Saudi Arabia’s history. '
             'Bring your curiosity and get ready to travel back in time. '
@@ -67,7 +68,7 @@ class DestinationPage extends StatelessWidget {
   }
 
   List<String> getDiscoverItems() {
-    switch (destination['name']) {
+    switch (destination.name) {
       case 'Diriyah':
         return ['At-Turaif', 'Bujairi Terrace', 'Najdi Heritage'];
       case 'Riyadh':
@@ -84,7 +85,7 @@ class DestinationPage extends StatelessWidget {
   }
 
   List<IconData> getDiscoverIcons() {
-    switch (destination['name']) {
+    switch (destination.name) {
       case 'Diriyah':
         return [
           Icons.account_balance,
@@ -177,9 +178,11 @@ class DestinationPage extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
+
               const SizedBox(height: 30),
+
               Text(
-                destination['name'].toString().toUpperCase(),
+                destination.name.toUpperCase(),
                 style: const TextStyle(
                   fontSize: 42,
                   fontWeight: FontWeight.bold,
@@ -187,15 +190,19 @@ class DestinationPage extends StatelessWidget {
                   letterSpacing: 1,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Text(
-                destination['type'],
+                destination.type,
                 style: const TextStyle(
                   fontSize: 17,
                   color: Color(0xFFD7DED9),
                 ),
               ),
+
               const SizedBox(height: 20),
+
               Row(
                 children: [
                   const Icon(
@@ -221,7 +228,9 @@ class DestinationPage extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 35),
+
               const Text(
                 'ABOUT THE EXPERIENCE',
                 style: TextStyle(
@@ -231,7 +240,9 @@ class DestinationPage extends StatelessWidget {
                   letterSpacing: 1,
                 ),
               ),
+
               const SizedBox(height: 15),
+
               Text(
                 getAboutText(),
                 style: const TextStyle(
@@ -240,7 +251,9 @@ class DestinationPage extends StatelessWidget {
                   height: 1.7,
                 ),
               ),
+
               const SizedBox(height: 35),
+
               const Text(
                 'DON’T MISS',
                 style: TextStyle(
@@ -250,7 +263,9 @@ class DestinationPage extends StatelessWidget {
                   letterSpacing: 1,
                 ),
               ),
+
               const SizedBox(height: 18),
+
               Row(
                 children: List.generate(
                   3,
@@ -290,7 +305,9 @@ class DestinationPage extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 40),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -298,7 +315,7 @@ class DestinationPage extends StatelessWidget {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: destination['color'],
+                    backgroundColor: (destination.color),
                     foregroundColor: const Color(0xFF26332F),
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
@@ -315,6 +332,7 @@ class DestinationPage extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 35),
             ],
           ),
