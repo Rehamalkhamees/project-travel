@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '/data/destination_data.dart';
+import 'package:travel_project5/service/database.dart';
+
 import '../models/destination_model.dart';
 import 'destination_page.dart';
 
@@ -16,23 +17,6 @@ class _HomePageState extends State<HomePage> {
   List<DestinationModel> destinations = [];
 
   List<DestinationModel> filteredDestinations = [];
-void getData() {
-  destinations = destinationData
-      .map((data) => DestinationModel.fromJson(data))
-      .toList();
-
-  filteredDestinations = destinations;
-}
-
-
-
-
-
-  @override
-  void initState() {
-    super.initState();
-    getData();
-  }
 
   void searchDestination(String value) {
     setState(() {
@@ -140,117 +124,120 @@ void getData() {
 
               SizedBox(
                 height: 420,
-                child: filteredDestinations.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No destination found',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      )
-                    : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth > 700 ? 60 : 20,
-                        ),
-                        itemCount: filteredDestinations.length,
-                        itemBuilder: (context, index) {
-                          final destination = filteredDestinations[index];
+                child: FutureBuilder(
+                  future: Database().getAlltravel(), //newww
+                  builder: (context, asyncSnapshot) {
+                    print(asyncSnapshot.data);
+                    if (!asyncSnapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      DestinationPage(destination: destination),
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth > 700 ? 60 : 20,
+                      ),
+                      itemCount: asyncSnapshot.data!.length, //newww
+                      itemBuilder: (context, index) {
+                        final destination = asyncSnapshot.data![index]; //newww
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DestinationPage(destination: destination),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 250,
+                            margin: const EdgeInsets.only(right: 18),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.25),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
                                 ),
-                              );
-                            },
-                            child: Container(
-                              width: 250,
-                              margin: const EdgeInsets.only(right: 18),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(28),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.25),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 8),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(28),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.asset(
+                                    destination.image,
+                                    fit: BoxFit.cover,
+                                  ),
+
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.transparent,
+                                          Color(0xCC000000),
+                                        ],
+                                        stops: [0.4, 1],
+                                      ),
+                                    ),
+                                  ),
+
+                                  Positioned(
+                                    left: 22,
+                                    right: 22,
+                                    bottom: 24,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          destination.name,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 6),
+
+                                        Text(
+                                          destination.type,
+                                          style: const TextStyle(
+                                            color: Color(0xFFE3E7E4),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 18),
+
+                                        const Text(
+                                          'Discover →',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(28),
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.asset(
-                                      destination.image,
-                                      fit: BoxFit.cover,
-                                    ),
-
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.transparent,
-                                            Color(0xCC000000),
-                                          ],
-                                          stops: [0.4, 1],
-                                        ),
-                                      ),
-                                    ),
-
-                                    Positioned(
-                                      left: 22,
-                                      right: 22,
-                                      bottom: 24,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            destination.name,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 30,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-
-                                          const SizedBox(height: 6),
-
-                                          Text(
-                                            destination.type,
-                                            style: const TextStyle(
-                                              color: Color(0xFFE3E7E4),
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-
-                                          const SizedBox(height: 18),
-
-                                          const Text(
-                                            'Discover →',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
 
               const SizedBox(height: 20),

@@ -6,14 +6,19 @@ class DestinationModel {
   final String image;
   final Color color;
 
-  DestinationModel({ required this.name,required this.type,required this.image,required this.color, });
+  DestinationModel({
+    required this.name,
+    required this.type,
+    required this.image,
+    required this.color,
+  });
 
   factory DestinationModel.fromJson(Map<String, dynamic> json) {
     return DestinationModel(
       name: json['name'],
       type: json['type'],
       image: json['image'],
-      color: Color(json['color'] as int),
+      color: Color(int.parse(json['color'].toString())),
     );
   }
 }
