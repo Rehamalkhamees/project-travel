@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'pages/home_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
-
+  await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: "https://klbshprktjfnogpbxzyl.supabase.co",
-    publishableKey: "sb_publishable_kk1iQYP_FPAUQSUhNY-EsQ_z0Sijl-S",
+    url:  dotenv.get('supabase-url'),
+    publishableKey:  dotenv.get('supabase-key'),
   );
 
 
