@@ -1,18 +1,14 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:travel_project5/config.dart';
+import 'package:travel_project5/data/demo_destinations.dart';
 import 'package:travel_project5/models/destination_model.dart';
 
 class Database {
-  final supabase = Supabase.instance.client;
-
   Future<List<DestinationModel>> getAlltravel() async {
-    final data = await supabase.from("destinationData").select();
+    if (kOfflineDemo) return demoDestinations;
 
-    List<DestinationModel> travels = [];
-
-    for (var element in data) {
-      DestinationModel travel = DestinationModel.fromJson(element);
-      travels.add(travel);
-    }
-    return travels;
+    final data =
+        await Supabase.instance.client.from("destinationData").select();
+    return data.map(DestinationModel.fromJson).toList();
   }
 }
