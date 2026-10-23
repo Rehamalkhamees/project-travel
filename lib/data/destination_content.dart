@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travel_project5/models/destination_model.dart';
 
 /// Everything shown about a destination that does not come from Supabase.
 /// Looked up by the destination's name (the same names the table uses).
@@ -35,7 +36,22 @@ class DestinationContent {
   final List<IconData> icons;
 
   static DestinationContent forName(String name) => _byName[name] ?? _fallback;
+
+  /// True for the destinations with curated content (not added from the app).
+  static bool isKnown(String name) => _byName.containsKey(name);
 }
+
+/// The stage photo: the curated wide one for known destinations, otherwise
+/// the photo the destination itself carries.
+String heroPhotoFor(DestinationModel destination) =>
+    DestinationContent.isKnown(destination.name)
+        ? DestinationContent.forName(destination.name).hero
+        : destination.image;
+
+Alignment heroAlignmentFor(DestinationModel destination) =>
+    DestinationContent.isKnown(destination.name)
+        ? DestinationContent.forName(destination.name).heroAlignment
+        : Alignment.center;
 
 const _fromRiyadh = 'FROM RIYADH';
 const _straightLine = 'in a straight line';

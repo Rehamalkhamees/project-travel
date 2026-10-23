@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:travel_project5/data/bag.dart';
 import 'package:travel_project5/service/database.dart';
 import 'package:travel_project5/ui/style.dart';
+import 'package:travel_project5/widgets/add_destination_dialog.dart';
 import 'package:travel_project5/widgets/common.dart';
 import 'package:travel_project5/widgets/destination_cards.dart';
 import 'package:travel_project5/widgets/facts_panels.dart';
@@ -12,10 +13,13 @@ import '../models/destination_model.dart';
 import 'destination_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.loadDestinations});
+  const HomePage({super.key, this.loadDestinations, this.saveDestination});
 
   /// Where the destinations come from. Defaults to the Supabase table.
   final Future<List<DestinationModel>> Function()? loadDestinations;
+
+  /// Where a new destination is stored. Defaults to the Supabase table.
+  final Future<void> Function(DestinationModel model)? saveDestination;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -47,14 +51,16 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Future<void> _load() async {
+  /// Loads the destinations; [select] names the one to show afterwards.
+  Future<void> _load({String? select}) async {
     try {
       final loader = widget.loadDestinations ?? Database().getAlltravel;
       final data = await loader();
       if (!mounted) return;
+      final selected = select == null ? -1 : data.indexWhere((d) => d.name == select);
       setState(() {
         destinations = data;
-        active = 0;
+        active = selected < 0 ? 0 : selected;
         loading = false;
         error = null;
       });
@@ -76,6 +82,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _select(int index) => setState(() => active = index);
+
+  Future<void> _addDestination() async {
+    final added = await showDialog<String>(
+      context: context,
+      builder: (context) => AddDestinationDialog(
+        onSave: widget.saveDestination ??
+            (model) => Database().addNewplace(model: model),
+      ),
+    );
+    if (added == null || !mounted) return;
+    await _load(select: added);
+    if (!mounted) return;
+    if (scrollController.hasClients) _scrollToTop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$added was added')),
+    );
+  }
 
   void _step(int delta) {
     final n = destinations.length;
@@ -123,6 +146,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.ground,
+      floatingActionButton: loading || error != null
+          ? null
+          : FloatingActionButton(
+              onPressed: _addDestination,
+              tooltip: 'Add a destination',
+              backgroundColor: AppColors.paper,
+              foregroundColor: AppColors.ink,
+              child: const Icon(Icons.add, size: 30),
+            ),
       body: SafeArea(
         child: loading
             ? const Center(child: CircularProgressIndicator(color: AppColors.mist))

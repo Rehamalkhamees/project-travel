@@ -38,6 +38,7 @@ The line above the chips says what is still missing, for example *Pack camera + 
 - **Facts:** a line map of Saudi Arabia that marks the destination and its route from Riyadh, plus region, distance, best season and type of experience.
 - **Story:** *About the experience* and *Don't miss* for each destination.
 - **Destinations:** search, and a card for each destination that shows how many of its items are in your bag.
+- **Add a destination:** the **+** button opens a form (name, type, one of the bundled photos, accent colour) and saves a new row to `destinationData`. A destination with a new name shows the photo you picked on the stage, with general texts.
 - **Responsive:** a wide layout on desktop and tablet; on phones the card opens a detail screen.
 - **Reliable loading:** the destinations load once; if the request fails there is a message and a *Try again* button.
 - **Accessible:** buttons have labels, the map has a text description, and the map's pulse stops when the system's reduce-motion setting is on.
@@ -73,6 +74,8 @@ The app reads a table called `destinationData` with these columns:
 | `type` | `Adventure` | Shown as the destination's experience. |
 | `image` | `assets/images/alula2.jpeg` | The card photo, a path inside `assets/images/`. |
 | `color` | `0xFFEB9C63` | The destination's accent colour as an ARGB number. |
+
+Saving from the app needs permission to insert into this table. If you use Row Level Security, add an insert policy for the role the app uses; otherwise the form shows the error from Supabase.
 
 ## Tests
 

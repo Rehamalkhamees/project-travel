@@ -56,9 +56,9 @@ class DestinationPage extends StatelessWidget {
                           fit: StackFit.expand,
                           children: [
                             Image.asset(
-                              content.hero,
+                              heroPhotoFor(destination),
                               fit: BoxFit.cover,
-                              alignment: content.heroAlignment,
+                              alignment: heroAlignmentFor(destination),
                               semanticLabel: destination.name,
                               errorBuilder: (_, _, _) =>
                                   const ColoredBox(color: AppColors.deep),

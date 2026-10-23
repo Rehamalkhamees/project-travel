@@ -59,10 +59,9 @@ class HeroStage extends StatelessWidget {
                           duration: const Duration(milliseconds: 1600),
                           curve: Curves.easeOut,
                           child: Image.asset(
-                            DestinationContent.forName(destinations[i].name).hero,
+                            heroPhotoFor(destinations[i]),
                             fit: BoxFit.cover,
-                            alignment: DestinationContent.forName(destinations[i].name)
-                                .heroAlignment,
+                            alignment: heroAlignmentFor(destinations[i]),
                             errorBuilder: (_, _, _) =>
                                 const ColoredBox(color: Color(0xFF101815)),
                           ),
