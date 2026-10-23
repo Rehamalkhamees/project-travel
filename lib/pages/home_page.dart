@@ -1,325 +1,337 @@
 import 'package:flutter/material.dart';
+import 'package:travel_project5/data/bag.dart';
 import 'package:travel_project5/service/database.dart';
+import 'package:travel_project5/ui/style.dart';
+import 'package:travel_project5/widgets/common.dart';
+import 'package:travel_project5/widgets/destination_cards.dart';
+import 'package:travel_project5/widgets/facts_panels.dart';
+import 'package:travel_project5/widgets/hero_stage.dart';
+import 'package:travel_project5/widgets/story_section.dart';
 
 import '../models/destination_model.dart';
 import 'destination_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.loadDestinations});
+
+  /// Where the destinations come from. Defaults to the Supabase table.
+  final Future<List<DestinationModel>> Function()? loadDestinations;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
+  final GlobalKey storyKey = GlobalKey();
+  final GlobalKey destinationsKey = GlobalKey();
 
   List<DestinationModel> destinations = [];
+  bool loading = true;
+  Object? error;
+  int active = 0;
+  Set<String> picked = {};
+  String query = '';
 
-  List<DestinationModel> filteredDestinations = [];
-
-  void searchDestination(String value) {
-    setState(() {
-      filteredDestinations = destinations.where((destination) {
-       return destination.name.toString().toLowerCase().contains(
-          value.toLowerCase(),
-        );
-     }).toList();
-   });
+  @override
+  void initState() {
+    super.initState();
+    _load();
   }
- TextEditingController nameController = TextEditingController();
- TextEditingController typeController = TextEditingController();
- TextEditingController ImageController = TextEditingController();
- TextEditingController colorController = TextEditingController();
 
   @override
   void dispose() {
-    nameController.dispose();
-     typeController.dispose();
-      ImageController.dispose();
-      colorController.dispose();
-     searchController.dispose();
+    scrollController.dispose();
+    searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final loader = widget.loadDestinations ?? Database().getAlltravel;
+      final data = await loader();
+      if (!mounted) return;
+      setState(() {
+        destinations = data;
+        active = 0;
+        loading = false;
+        error = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        error = e;
+        loading = false;
+      });
+    }
+  }
+
+  void _retry() {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+    _load();
+  }
+
+  void _select(int index) => setState(() => active = index);
+
+  void _step(int delta) {
+    final n = destinations.length;
+    _select((active + delta + n) % n);
+  }
+
+  void _toggle(String id) {
+    final next = {...picked};
+    if (!next.remove(id)) next.add(id);
+    final best = bestBagMatch([for (final d in destinations) d.name], next, active);
+    setState(() {
+      picked = next;
+      if (best >= 0) active = best;
+    });
+  }
+
+  void _openDetail(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DestinationPage(destination: destinations[index]),
+      ),
+    );
+  }
+
+  void _scrollTo(GlobalKey key) {
+    final target = key.currentContext;
+    if (target == null) return;
+    Scrollable.ensureVisible(
+      target,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _scrollToTop() {
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      backgroundColor: const Color(0xFF26332F),
+      backgroundColor: AppColors.ground,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 35),
-
-              const Text(
-                'Your Bag, Your Destination',
-                style: TextStyle(
-                  color: Color(0xFFD7DED9),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              const Text(
-                'YOUR BAG DECIDES\nYOUR DESTINATION',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 44,
-                  fontWeight: FontWeight.bold,
-                  height: 1.15,
-                  letterSpacing: 1,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'Pack your essentials. Pick your journey.\n'
-                'Let your bag choose where Saudi Arabia takes you.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFFD7DED9),
-                  fontSize: 17,
-                  height: 1.5,
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              SizedBox(
-                width: screenWidth > 700 ? 420 : screenWidth * 0.8,
-                child: TextField(
-                  controller: searchController,
-                  onChanged: searchDestination,
-                  style: const TextStyle(color: Color(0xFF26332F)),
-                  decoration: InputDecoration(
-                    hintText: 'Search a destination...',
-                    hintStyle: const TextStyle(color: Color(0xFF6B7470)),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFF6B7470),
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF4F5F2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              const Text(
-                'WHAT IS IN YOUR BAG?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 3,
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              SizedBox(
-                height: 420,
-                child: FutureBuilder(
-                  future: Database().getAlltravel(), //newww
-                  builder: (context, asyncSnapshot) {
-                    print(asyncSnapshot.data);
-                    if (!asyncSnapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth > 700 ? 60 : 20,
-                      ),
-                      itemCount: asyncSnapshot.data!.length, //newww
-                      itemBuilder: (context, index) {
-                        final destination = asyncSnapshot.data![index]; //newww
-
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DestinationPage(destination: destination),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 250,
-                            margin: const EdgeInsets.only(right: 18),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.25),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(28),
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  Image.asset(
-                                    destination.image,
-                                    fit: BoxFit.cover,
-                                  ),
-
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.transparent,
-                                          Color(0xCC000000),
-                                        ],
-                                        stops: [0.4, 1],
-                                      ),
-                                    ),
-                                  ),
-
-                                  Positioned(
-                                    left: 22,
-                                    right: 22,
-                                    bottom: 24,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          destination.name,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 30,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-
-                                        const SizedBox(height: 6),
-
-                                        Text(
-                                          destination.type,
-                                          style: const TextStyle(
-                                            color: Color(0xFFE3E7E4),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-
-                                        const SizedBox(height: 18),
-
-                                        const Text(
-                                          'Discover →',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'Choose a destination and discover its story.',
-                style: TextStyle(color: Color(0xFFD7DED9), fontSize: 16),
-              ),
-
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
+        child: loading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.mist))
+            : error != null
+                ? _Message(
+                    text: 'Could not load the destinations. Check your connection and try again.',
+                    action: 'Try again',
+                    onAction: _retry,
+                  )
+                : destinations.isEmpty
+                    ? const _Message(text: 'No destinations yet.')
+                    : _content(),
       ),
-
-floatingActionButton: FloatingActionButton(
-  backgroundColor: Colors.green,
-  child: Icon(Icons.add,size: 34,color: Colors.white,),
-  
-  onPressed: (){
-showDialog(
-  context: context,
-
- builder: (context){
-return Dialog(
-child: Container(
-margin: EdgeInsets.all(18),
-child: Column(
-mainAxisSize: MainAxisSize.min,
-children: [
-Text("add new distince")
-AppSize.h24,
-TextField(
-controller: nameController,
-decoration: InputDecoration(
-labelText: "name",
-border: OutlineInputBorder()
-),
-),
-AppSize.h24,
-TextField(
-
-
-  
-)
-
-
-
-
-
-
-],
-
-),
-),
-
-);
-
-
- }
- 
- 
- 
- 
- );
-
-
-
+    );
   }
 
+  Widget _content() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= kWideBreakpoint;
+        final pad = wide ? 24.0 : 16.0;
+        final current = destinations[active];
 
-),
+        return SingleChildScrollView(
+          controller: scrollController,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: kMaxContentWidth + 48),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(pad, 0, pad, 48),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Header(
+                      wide: wide,
+                      counter: '${(active + 1).toString().padLeft(2, '0')} / '
+                          '${destinations.length.toString().padLeft(2, '0')}',
+                      onBag: _scrollToTop,
+                      onStory: () => _scrollTo(storyKey),
+                      onDestinations: () => _scrollTo(destinationsKey),
+                    ),
+                    const SizedBox(height: 12),
+                    HeroStage(
+                      destinations: destinations,
+                      active: active,
+                      wide: wide,
+                      picked: picked,
+                      pickLine: packLine(current.name, picked),
+                      onToggle: _toggle,
+                      onPrev: () => _step(-1),
+                      onNext: () => _step(1),
+                      onOpen: () => _openDetail(active),
+                    ),
+                    SizedBox(height: wide ? 16 : 12),
+                    FactsPanels(
+                      destinations: destinations,
+                      active: active,
+                      wide: wide,
+                      onSelect: _select,
+                    ),
+                    if (wide) ...[
+                      SizedBox(key: storyKey, height: 64),
+                      StorySection(destination: current, wide: wide),
+                    ],
+                    SizedBox(key: destinationsKey, height: wide ? 64 : 36),
+                    DestinationCards(
+                      destinations: destinations,
+                      active: active,
+                      picked: picked,
+                      wide: wide,
+                      searchController: searchController,
+                      query: query,
+                      onQueryChanged: (value) => setState(() => query = value),
+                      onSelect: (index) {
+                        _select(index);
+                        if (wide) {
+                          _scrollToTop();
+                        } else {
+                          _openDetail(index);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 56),
+                    const _Footer(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.wide,
+    required this.counter,
+    required this.onBag,
+    required this.onStory,
+    required this.onDestinations,
+  });
 
+  final bool wide;
+  final String counter;
+  final VoidCallback onBag;
+  final VoidCallback onStory;
+  final VoidCallback onDestinations;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: wide ? 22 : 20, left: 2, right: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Wordmark(size: wide ? 28 : 26),
+          if (wide)
+            Row(
+              children: [
+                _NavLink('Your bag', onBag),
+                _NavLink('The experience', onStory),
+                _NavLink('Destinations', onDestinations),
+              ],
+            )
+          else
+            Text(counter, style: labelStyle(AppColors.mist, size: 13, spacing: 1.6)),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavLink extends StatelessWidget {
+  const _NavLink(this.text, this.onTap);
+
+  final String text;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.mist,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      ),
+      child: Text(text, style: bodyStyle(14, weight: FontWeight.w600, color: AppColors.mist)),
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  const _Footer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 24),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: AppColors.line)),
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runSpacing: 6,
+        spacing: 12,
+        children: [
+          const Wordmark(size: 22),
+          Text('Your Bag, Your Destination',
+              style: bodyStyle(14, color: AppColors.quiet)),
+        ],
+      ),
+    );
+  }
+}
+
+class _Message extends StatelessWidget {
+  const _Message({required this.text, this.action, this.onAction});
+
+  final String text;
+  final String? action;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(text, textAlign: TextAlign.center, style: bodyStyle(18)),
+            if (action != null) ...[
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: onAction,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.paper,
+                  foregroundColor: AppColors.ink,
+                  minimumSize: const Size(160, 48),
+                ),
+                child: Text(action!),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
