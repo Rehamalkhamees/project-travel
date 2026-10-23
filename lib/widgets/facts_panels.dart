@@ -147,7 +147,6 @@ class _FactsPanel extends StatelessWidget {
             name: destinations[i].name,
             image: destinations[i].image,
             selected: i == active,
-            accent: destinations[i].color,
             size: wide ? 60 : 56,
             onTap: () => onSelect(i),
           ),
@@ -159,6 +158,7 @@ class _FactsPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
+                flex: 10,
                 child: BigStat(
                   label: 'BEST SEASON',
                   value: content.season,
@@ -169,6 +169,7 @@ class _FactsPanel extends StatelessWidget {
               ),
               const SizedBox(width: 32),
               Expanded(
+                flex: 13,
                 child: BigStat(
                   label: 'EXPERIENCE',
                   value: current.type.toUpperCase(),
@@ -178,7 +179,7 @@ class _FactsPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 32),
-              Expanded(child: _BagTags(tags: tags, accent: accent)),
+              Expanded(flex: 11, child: _BagTags(tags: tags, accent: accent)),
             ],
           )
         : Column(
@@ -264,21 +265,27 @@ class _FactRow extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColors.lineOnPaper)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: labelStyle(AppColors.quietOnPaper, size: 11)),
           const SizedBox(width: 12),
           Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: Text(
-                value,
-                maxLines: 1,
-                style: displayStyle(44, color: AppColors.ink, height: 1),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final line in splitAtAmpersand(value))
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      line,
+                      maxLines: 1,
+                      style: displayStyle(44, color: AppColors.ink, height: 1),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -345,7 +352,6 @@ class _Thumb extends StatelessWidget {
     required this.name,
     required this.image,
     required this.selected,
-    required this.accent,
     required this.size,
     required this.onTap,
   });
@@ -353,7 +359,6 @@ class _Thumb extends StatelessWidget {
   final String name;
   final String image;
   final bool selected;
-  final Color accent;
   final double size;
   final VoidCallback onTap;
 
@@ -375,7 +380,7 @@ class _Thumb extends StatelessWidget {
             border: Border.all(color: AppColors.paper, width: 3),
             boxShadow: [
               BoxShadow(
-                color: selected ? accent : AppColors.ink.withValues(alpha: .16),
+                color: selected ? AppColors.ink : AppColors.ink.withValues(alpha: .16),
                 spreadRadius: 3,
               ),
             ],

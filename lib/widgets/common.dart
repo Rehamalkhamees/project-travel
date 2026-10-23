@@ -112,6 +112,14 @@ class BagChip extends StatelessWidget {
   }
 }
 
+/// Splits a long title at its ampersand so it can sit on two lines:
+/// "Adventure & Photography" becomes ["Adventure &", "Photography"].
+List<String> splitAtAmpersand(String value) {
+  final i = value.indexOf(' & ');
+  if (i < 0) return [value];
+  return [value.substring(0, i + 2), value.substring(i + 3)];
+}
+
 /// A label above a big Bebas value, used on the facts panels.
 class BigStat extends StatelessWidget {
   const BigStat({
@@ -152,15 +160,16 @@ class BigStat extends StatelessWidget {
         ],
         Text(label, style: labelStyle(labelColor)),
         const SizedBox(height: 8),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            value,
-            maxLines: 1,
-            style: displayStyle(valueSize, color: valueColor, height: .95),
+        for (final line in splitAtAmpersand(value))
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              line,
+              maxLines: 1,
+              style: displayStyle(valueSize, color: valueColor, height: .95),
+            ),
           ),
-        ),
         if (caption != null) ...[
           const SizedBox(height: 6),
           Text(caption!, style: bodyStyle(13, color: labelColor)),
