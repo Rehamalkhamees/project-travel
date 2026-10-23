@@ -1,7 +1,13 @@
+import 'package:flutter/painting.dart' show Color;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:travel_project5/config.dart';
 import 'package:travel_project5/data/demo_destinations.dart';
 import 'package:travel_project5/models/destination_model.dart';
+
+/// The text form stored in the `color` column, like the existing rows:
+/// `Color(0xFFEB9C63)` becomes `"0xFFEB9C63"` (DestinationModel.fromJson reads it back).
+String encodeColor(Color color) =>
+    '0x${color.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}';
 
 class Database {
   /// Destinations added while the offline demo is running (kept until the
@@ -26,8 +32,7 @@ class Database {
       "name": model.name,
       "type": model.type,
       "image": model.image,
-      // Stored as the ARGB number that DestinationModel.fromJson reads back.
-      "color": model.color.toARGB32(),
+      "color": encodeColor(model.color),
     });
   }
 }
