@@ -21,16 +21,24 @@ class _HomePageState extends State<HomePage> {
   void searchDestination(String value) {
     setState(() {
       filteredDestinations = destinations.where((destination) {
-        return destination.name.toString().toLowerCase().contains(
+       return destination.name.toString().toLowerCase().contains(
           value.toLowerCase(),
         );
-      }).toList();
-    });
+     }).toList();
+   });
   }
+ TextEditingController nameController = TextEditingController();
+ TextEditingController typeController = TextEditingController();
+ TextEditingController ImageController = TextEditingController();
+ TextEditingController colorController = TextEditingController();
 
   @override
   void dispose() {
-    searchController.dispose();
+    nameController.dispose();
+     typeController.dispose();
+      ImageController.dispose();
+      colorController.dispose();
+     searchController.dispose();
     super.dispose();
   }
 
@@ -252,6 +260,66 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+
+floatingActionButton: FloatingActionButton(
+  backgroundColor: Colors.green,
+  child: Icon(Icons.add,size: 34,color: Colors.white,),
+  
+  onPressed: (){
+showDialog(
+  context: context,
+
+ builder: (context){
+return Dialog(
+child: Container(
+margin: EdgeInsets.all(18),
+child: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+Text("add new distince")
+AppSize.h24,
+TextField(
+controller: nameController,
+decoration: InputDecoration(
+labelText: "name",
+border: OutlineInputBorder()
+),
+),
+AppSize.h24,
+TextField(
+
+
+  
+)
+
+
+
+
+
+
+],
+
+),
+),
+
+);
+
+
+ }
+ 
+ 
+ 
+ 
+ );
+
+
+
+  }
+
+
+),
+
+
     );
   }
 }

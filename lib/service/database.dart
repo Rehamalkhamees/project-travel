@@ -15,4 +15,13 @@ class Database {
     }
     return travels;
   }
+
+  Future<void> addNewplace({required DestinationModel model}) async {
+    await supabase.from("travel").insert({
+      "name": model.name,
+      "type": model.type,
+      "image": model.image,
+      "color": model.color,
+    });
+  }
 }
