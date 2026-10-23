@@ -89,6 +89,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.text('Try again'), findsOneWidget);
+    // The reason is shown too, so a paused or misconfigured backend is easy to spot.
+    expect(find.textContaining('offline'), findsOneWidget);
 
     await tester.tap(find.text('Try again'));
     await tester.pump();

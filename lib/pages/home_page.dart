@@ -65,6 +65,7 @@ class _HomePageState extends State<HomePage> {
         error = null;
       });
     } catch (e) {
+      debugPrint('Could not load the destinations: $e');
       if (!mounted) return;
       setState(() {
         error = e;
@@ -161,6 +162,7 @@ class _HomePageState extends State<HomePage> {
             : error != null
                 ? _Message(
                     text: 'Could not load the destinations. Check your connection and try again.',
+                    detail: _describe(error!),
                     action: 'Try again',
                     onAction: _retry,
                   )
@@ -333,10 +335,18 @@ class _Footer extends StatelessWidget {
   }
 }
 
+/// Short technical reason shown under the error message (helps spot a paused
+/// Supabase project, a wrong key or a missing table).
+String _describe(Object error) {
+  final text = error.toString();
+  return text.length > 220 ? '${text.substring(0, 220)}…' : text;
+}
+
 class _Message extends StatelessWidget {
-  const _Message({required this.text, this.action, this.onAction});
+  const _Message({required this.text, this.detail, this.action, this.onAction});
 
   final String text;
+  final String? detail;
   final String? action;
   final VoidCallback? onAction;
 
@@ -349,6 +359,17 @@ class _Message extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(text, textAlign: TextAlign.center, style: bodyStyle(18)),
+            if (detail != null) ...[
+              const SizedBox(height: 12),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: SelectableText(
+                  detail!,
+                  textAlign: TextAlign.center,
+                  style: bodyStyle(13, color: AppColors.quiet),
+                ),
+              ),
+            ],
             if (action != null) ...[
               const SizedBox(height: 20),
               FilledButton(
