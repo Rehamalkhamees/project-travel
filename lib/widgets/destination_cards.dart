@@ -147,7 +147,7 @@ class DestinationCards extends StatelessWidget {
   String? _matchText(String name) {
     final score = bagScore(name, picked);
     if (score == 0) return null;
-    return '$score of ${bagItemsFor(name).length} in your bag';
+    return '$score of ${bagItemsFor(name).length} packed';
   }
 }
 

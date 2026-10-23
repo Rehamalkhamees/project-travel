@@ -109,11 +109,7 @@ class _HomePageState extends State<HomePage> {
   void _toggle(String id) {
     final next = {...picked};
     if (!next.remove(id)) next.add(id);
-    final best = bestBagMatch([for (final d in destinations) d.name], next, active);
-    setState(() {
-      picked = next;
-      if (best >= 0) active = best;
-    });
+    setState(() => picked = next);
   }
 
   void _openDetail(int index) {

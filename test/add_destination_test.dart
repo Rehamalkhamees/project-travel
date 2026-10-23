@@ -72,7 +72,8 @@ void main() {
     expect(find.text('ADD A DESTINATION'), findsNothing);
     // The new destination has a card and is the one on the stage.
     expect(find.text('Khobar'), findsOneWidget);
-    expect(find.text('Your bag is ready for Khobar'), findsOneWidget);
+    expect(find.text('KHOBAR'), findsOneWidget);
+    expect(find.text('06 / 06'), findsOneWidget);
     expect(find.text('Khobar was added'), findsOneWidget);
   });
 

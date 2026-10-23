@@ -1,6 +1,6 @@
 # Saudi Escape: Your Bag, Your Destination
 
-A Flutter app that lets your bag decide where in Saudi Arabia you travel. Tick what you packed, and the app points you to the destination that fits: AlUla for a camera and comfortable shoes, Umluj for a swimsuit, Abha for warm clothes.
+A Flutter app for choosing where to go in Saudi Arabia and what to pack for it. Every destination comes with its own bag: AlUla asks for a camera and comfortable shoes, Umluj for a swimsuit, Abha for warm clothes.
 
 A Flutter project with web, Android and Windows targets. Destinations are loaded from Supabase.
 
@@ -20,24 +20,26 @@ A Flutter project with web, Android and Windows targets. Destinations are loaded
 
 ## How it works
 
-Under the photo, **What is in your bag?** lists six things you can tick. Each one belongs to a destination, and the stage switches to the destination with the most ticked items.
+Every destination has its own things to pack. The stage shows only the ones for the destination you are on, and you tick them off as you pack.
 
-| In your bag | Destination |
+| Destination | In your bag |
 | --- | --- |
-| Camera, Comfortable shoes | AlUla |
-| Swimsuit | Umluj |
-| Warm clothes | Abha |
-| Best outfit | Riyadh |
-| Curiosity | Diriyah |
+| AlUla | Camera, Comfortable shoes |
+| Umluj | Swimsuit |
+| Abha | Warm clothes |
+| Riyadh | Best outfit |
+| Diriyah | Curiosity |
 
-The line above the chips says what is still missing, for example *Pack camera + comfortable shoes for AlUla*, or *Your bag is ready for AlUla* once everything is packed.
+The line above the chips says what is still missing, for example *Pack camera + comfortable shoes for AlUla*, or *Your bag is ready for AlUla* once everything is ticked. Each destination card shows how many of its items you have packed.
+
+The items live in `lib/data/bag.dart`. A destination added from the app has no items yet, so its stage shows no bag.
 
 ## Features
 
-- **Stage:** a large photo with the destination's name, a counter and previous / next buttons. Photos cross-fade when you switch.
+- **Stage:** a large photo with the destination's name, its bag to tick off, a counter and previous / next buttons. Photos cross-fade when you switch.
 - **Facts:** a line map of Saudi Arabia that marks the destination and its route from Riyadh, plus region, distance, best season and type of experience.
 - **Story:** *About the experience* and *Don't miss* for each destination.
-- **Destinations:** search, and a card for each destination that shows how many of its items are in your bag.
+- **Destinations:** search, and a card for each destination that shows how many of its items you have packed.
 - **Add a destination:** the **+** button opens a form (name, type, one of the bundled photos, accent colour) and saves a new row to `destinationData`. A destination with a new name shows the photo you picked on the stage, with general texts.
 - **Responsive:** a wide layout on desktop and tablet; on phones the card opens a detail screen.
 - **Reliable loading:** the destinations load once; if the request fails there is a message and a *Try again* button.
@@ -83,7 +85,7 @@ Saving from the app needs permission to insert into this table. If you use Row L
 flutter test
 ```
 
-They cover the bag matching, ticking chips on the home page, search, the retry button, and that the phone layout builds without overflow.
+They cover the bag items, ticking them on the home page, search, the retry button, adding a destination, and that the phone layout builds without overflow.
 
 ## Project structure
 

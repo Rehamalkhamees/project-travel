@@ -43,23 +43,36 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
-  testWidgets('ticking bag items switches the destination (wide)', (tester) async {
+  testWidgets('each destination shows only its own bag items (wide)', (tester) async {
     useSize(tester, const Size(1440, 2600));
     await tester.pumpWidget(_app(() async => demoDestinations));
     await tester.pumpAndSettle();
 
+    // Diriyah: just Curiosity. No other destination's items on show.
     expect(find.text('Pack curiosity for Diriyah'), findsOneWidget);
+    expect(find.text('Curiosity'), findsWidgets);
+    expect(find.text('Swimsuit'), findsNothing);
+    expect(find.text('Camera'), findsNothing);
 
-    await tester.tap(find.text('Swimsuit'));
+    await tester.tap(find.text('Curiosity').first);
     await tester.pumpAndSettle();
-    expect(find.text('Your bag is ready for Umluj'), findsOneWidget);
+    expect(find.text('Your bag is ready for Diriyah'), findsOneWidget);
+    expect(find.text('1 of 1 packed'), findsOneWidget);
 
-    await tester.tap(find.text('Camera'));
-    await tester.tap(find.text('Comfortable shoes'));
+    // Next two destinations: Riyadh, then AlUla.
+    await tester.tap(find.bySemanticsLabel('Next destination'));
     await tester.pumpAndSettle();
-    // AlUla now has 2 ticked items, Umluj 1.
-    expect(find.text('Your bag is ready for AlUla'), findsOneWidget);
-    expect(find.text('2 of 2 in your bag'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Next destination'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pack camera + comfortable shoes for AlUla'), findsOneWidget);
+    expect(find.text('Swimsuit'), findsNothing);
+
+    await tester.tap(find.text('Camera').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Pack comfortable shoes for AlUla'), findsOneWidget);
+    expect(find.text('1 of 2 packed'), findsOneWidget);
+    // Ticking never moves you to another destination.
+    expect(find.text('03 / 05'), findsOneWidget);
   });
 
   testWidgets('search filters the destination cards', (tester) async {

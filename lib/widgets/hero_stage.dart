@@ -35,6 +35,9 @@ class HeroStage extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = destinations[active].color;
     final pad = wide ? 40.0 : 20.0;
+    // Only what belongs in the bag for this destination; none for destinations
+    // added from the app, which then show no bag.
+    final items = bagItemsFor(destinations[active].name);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(wide ? 28 : 24),
@@ -190,8 +193,9 @@ class HeroStage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Bottom: the bag.
-                Positioned(
+                // Bottom: the bag for this destination.
+                if (items.isNotEmpty)
+                  Positioned(
                   left: pad,
                   right: pad,
                   bottom: wide ? 32 : 22,
@@ -222,7 +226,7 @@ class HeroStage extends StatelessWidget {
                         spacing: wide ? 10 : 8,
                         runSpacing: wide ? 10 : 8,
                         children: [
-                          for (final item in bagItems)
+                          for (final item in items)
                             BagChip(
                               label: item.label,
                               selected: picked.contains(item.id),

@@ -2,32 +2,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_project5/data/bag.dart';
 
 void main() {
-  const destinations = ['Diriyah', 'Riyadh', 'AlUla', 'Umluj', 'Abha'];
-
-  group('bestBagMatch', () {
-    test('returns -1 when nothing is ticked', () {
-      expect(bestBagMatch(destinations, {}, 0), -1);
+  group('bagItemsFor', () {
+    test('every item is listed only under its own destination', () {
+      expect([for (final b in bagItemsFor('AlUla')) b.label],
+          ['Camera', 'Comfortable shoes']);
+      expect([for (final b in bagItemsFor('Umluj')) b.label], ['Swimsuit']);
+      expect(bagItemsFor('Khobar'), isEmpty);
     });
 
-    test('picks the destination with the most ticked items', () {
-      expect(bestBagMatch(destinations, {'camera', 'shoes'}, 0), 2);
-      expect(bestBagMatch(destinations, {'swim'}, 0), 3);
-    });
-
-    test('keeps the current destination when it ties for best', () {
-      // One item for AlUla and one for Umluj: both score 1.
-      expect(bestBagMatch(destinations, {'camera', 'swim'}, 3), 3);
-      expect(bestBagMatch(destinations, {'camera', 'swim'}, 2), 2);
-    });
-
-    test('moves to the first best match when current is not among them', () {
-      expect(bestBagMatch(destinations, {'camera', 'swim'}, 0), 2);
-    });
-
-    test('handles an empty destination list', () {
-      expect(bestBagMatch(const [], {'camera'}, 0), -1);
+    test('ticking another destination\'s item does not count', () {
+      expect(bagScore('AlUla', {'swim'}), 0);
+      expect(bagScore('AlUla', {'camera', 'swim'}), 1);
+      expect(bagScore('Umluj', {'camera', 'swim'}), 1);
     });
   });
+
 
   group('packLine', () {
     test('lists what is still missing', () {
